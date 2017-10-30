@@ -1,6 +1,7 @@
 # main: documents.title/body query.description/query/subtopic
 from conf import *
 
+
 def clear_str(str):
     if len(str) == 0:
         return str
