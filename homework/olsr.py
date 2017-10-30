@@ -17,7 +17,7 @@ coll_relation = mongo_client.nlp.relation
 
 
 query_clean_path = './data/query_simple.txt'
-document_clean_paht = './data/documents_simple.tx'
+document_clean_path = './data/documents_simple.tx'
 
 
 def pre_process():
@@ -37,6 +37,13 @@ def pre_process():
             new_item = dict()
             new_item['id'] = item['_id']
             new_item['query'] = lemmatize(clean(item['query']))
+            f.write('{0}\n'.format(new_item))
+
+    with open(document_clean_path, 'wt') as f:
+        for item in coll_documents.find({}):
+            new_item = dict()
+            new_item['id'] = item['_id']
+            new_item['title'] = lemmatize(clean(item['title']))
             f.write('{0}\n'.format(new_item))
 
 if __name__ == '__main__':
