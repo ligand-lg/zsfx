@@ -27,7 +27,7 @@ def pre_process():
     wordnet_lemmatizer = nltk.stem.WordNetLemmatizer()
 
     def clean(s):
-        return [word for word in tokenizer.tokenize(s) if word not in stop_words]
+        return [word for word in tokenizer.tokenize(s) if word not in stop_words and len(word) > 2]
 
     def lemmatize(words):
         return [wordnet_lemmatizer.lemmatize(word) for word in words]
@@ -37,7 +37,7 @@ def pre_process():
             new_item = dict()
             new_item['id'] = item['_id']
             new_item['query'] = lemmatize(clean(item['query']))
-            f.write(str(new_item))
+            f.write('{0}\n'.format(new_item))
 
 if __name__ == '__main__':
     pre_process()
