@@ -1,0 +1,14 @@
+aritcle: 512915
+documents:
+   ok: 472109
+   title_error: 678
+   body_error: 1
+   title_and_body_error: 1
+   total: 472789
+reaped_article = aritcle - documents = 40806
+
+querys: 50
+
+relationship:
+   repeated:  499501
+      eg:201-1016 = 201-992
