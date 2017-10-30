@@ -92,11 +92,12 @@ def parse_relation(url):
             item['_id'] = item['query_id'] + item['article_id']
             item['id_code'] = split_line[3]
             item['score'] = split_line[4]
+            #mongo_client.nlp.test_relationship.save(item)
             coll_relation.save(item)
 
 
 
-#parse_relation(relation_path)
+#parse_relation('./data/test.txt')
 #parse_doc()
 #article_mongo(documents_path)
 
