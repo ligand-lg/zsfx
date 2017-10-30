@@ -9,11 +9,13 @@
 import re
 import nltk
 from pymongo import MongoClient
+import json
 mongo_client = MongoClient()
 coll_articles = mongo_client.nlp.articles
 coll_documents = mongo_client.nlp.documents
 coll_querys = mongo_client.nlp.querys
-coll_relation = mongo_client.nlp.relation
+coll_train = mongo_client.nlp.train_relationship
+coll_test = mongo_client.nlp.test_relationship
 
 
 query_clean_path = './data/query_simple.txt'
@@ -50,10 +52,28 @@ def pre_process():
             new_item['title'] = lemmatize(clean(item['title']))
             f.write('{0}\n'.format(new_item))
 
-            
+
+def read_doucments(url=document_clean_path):
+    docs = list()
+    with open(url, 'rt', encoding='utf-8') as f:
+        for line in f:
+            line = line.replace("'", '"').replace('\n', '')
+            docs.append(json.loads(line))
+    return docs
+
+'''
+def train():
+
+    for i in range(201, 251):
+        qid = str(i)
+        for relationship in coll_train.find({'query_id':qid}):
+'''
+
 
 if __name__ == '__main__':
-    pre_process()
+    r = read_doucments()
+    print(len(r), r[0])
+
 
 
 
