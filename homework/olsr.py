@@ -5,8 +5,16 @@
 # 1. 预处理(nltk.download('stopwords'), nltk.download('wordnet')
 #   1.1 标点符号、去除停止词、xml转义符号、非打印字符、url、长度小于2的字符。
 #   1.2 porter stemmer 词干提取/ wordnet lemmatizer 词形还原
-import conf
+
+
 import nltk
+from pymongo import MongoClient
+mongo_client = MongoClient()
+coll_articles = mongo_client.nlp.articles
+coll_documents = mongo_client.nlp.documents
+coll_querys = mongo_client.nlp.querys
+coll_relation = mongo_client.nlp.relation
+
 
 query_clean_path = './data/query_simple.txt'
 document_clean_paht = './data/documents_simple.tx'
@@ -25,12 +33,14 @@ def pre_process():
         return [wordnet_lemmatizer.lemmatize(word) for word in words]
 
     with open(query_clean_path, 'wt') as f:
-        for item in conf.coll_querys.find({}):
+        for item in coll_querys.find({}):
             new_item = dict()
             new_item['id'] = item['_id']
             new_item['query'] = lemmatize(clean(item['query']))
             f.write(str(new_item))
 
+if __name__ == '__main__':
+    pre_process()
 
 
 
