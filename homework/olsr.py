@@ -14,7 +14,7 @@ import json
 import numpy as np
 mongo_client = MongoClient()
 coll_articles = mongo_client.nlp.articles
-coll_documents = mongo_client.nlp.documents
+ncoll_documents = mongo_client.nlp.documents
 coll_querys = mongo_client.nlp.querys
 coll_train = mongo_client.nlp.train_relationship
 coll_test = mongo_client.nlp.test_relationship
@@ -65,7 +65,7 @@ def read_doucments(url=document_clean_path):
 
 def train(articles):
     model = []
-    for i in range(221, 251):
+    for i in [224, 228, 235, 236, 243]:
         qid = str(i)
         relation_articles = list()
         scores = list()
@@ -129,28 +129,28 @@ def predict(article, word_list, params_mat):
             index = word_list.index(word)
         vector[0, index] = 1
     # 计算score
-    return vector*params_mat
+    score = vector*params_mat 
+    return score[0, 0]
 
 
 def test(aritcles):
-    for i in range(201, 221):
-        qid = str(i)
-        # 加载模型
-        with open('model_{0}.txt'.format(qid), 'rt', encoding='utf-8') as f:
-            params_mat = f.readline().replace('\n', '')
-            params_mat = ast.literal_eval(params_mat)
-            params_mat = np.mat(params_mat).T
-            word_list = f.readline().replace('\n', '')
-            word_list = ast.literal_eval(word_list)
-
-        with open('../data/predict.txt', 'wt', encoding='utf-8') as f:
+    with open('../data/predict.txt', 'wt', encoding='utf-8') as fout:
+        for i in range(201, 251):
+            qid = str(i)
+            # 加载模型
+            with open('../data/model_{0}.txt'.format(qid), 'rt', encoding='utf-8') as f:
+                params_mat = f.readline().replace('\n', '')
+                params_mat = ast.literal_eval(params_mat)
+                params_mat = np.mat(params_mat).T
+                word_list = f.readline().replace('\n', '')
+                word_list = ast.literal_eval(word_list)
             # 读取数据
             for relationship in coll_test.find({'query_id': qid}):
                 article_id = relationship['article_id']
                 article = articles[article_id]
                 score = predict(article, word_list, params_mat)
                 id_code = relationship['id_code']
-                f.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
+                fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
 
 
 if __name__ == '__main__':
