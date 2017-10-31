@@ -116,13 +116,25 @@ def train(articles):
     return model
 
 
+def predict(article, word_list, params_mat):
+    # 向量化article
+    word_list_len = len(word_list)
+    vector = np.mat(np.zeros((1, word_list_len+1)))
+    # 截距
+    vector[0, -1] = 1
+    for word in article:
+        # word不在词表时，默认倒数第二列
+        index = -2
+        if word in word_list:
+            index = word_list.index(word)
+        vector[0, index] = 1
+    # 计算score
+    return vector*params_mat
+
+
 def test(aritcles):
-    for i in range(201, 251):
+    for i in range(201, 221):
         qid = str(i)
-        relation_aritcles = []
-        # 读取数据
-        for relationship in coll_test.find({'query_id': qid}):
-            relation_aritcles.append(articles[relationship['article_id']])
         # 加载模型
         with open('model_{0}.txt'.format(qid), 'rt', encoding='utf-8') as f:
             params_mat = f.readline().replace('\n', '')
@@ -130,16 +142,21 @@ def test(aritcles):
             params_mat = np.mat(params_mat).T
             word_list = f.readline().replace('\n', '')
             word_list = ast.literal_eval(word_list)
-        # 向量化article
 
-
-
-
+        with open('../data/predict.txt', 'wt', encoding='utf-8') as f:
+            # 读取数据
+            for relationship in coll_test.find({'query_id': qid}):
+                article_id = relationship['article_id']
+                article = articles[article_id]
+                score = predict(article, word_list, params_mat)
+                id_code = relationship['id_code']
+                f.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
 
 
 if __name__ == '__main__':
     articles = read_doucments()
-    model = train(articles)
+    test(articles)
+    #model = train(articles)
     #pre_process()
     #r = read_doucments()
     #print(len(r), r[0])
