@@ -41,16 +41,16 @@ def pre_process():
     with open(query_clean_path, 'wt') as f:
         for item in coll_querys.find({}):
             new_item = dict()
-            new_item['id'] = item['_id']
-            new_item['query'] = lemmatize(clean(item['query']))
-            f.write('{0}\n'.format(new_item))
+            new_item[item['_id']] = lemmatize(clean(item['query']))
+            s_tmp = '{0}\n'.format(new_item)
+            f.write(s_tmp.replace("'", '"'))
 
     with open(document_clean_path, 'wt', encoding='utf-8') as f:
         for item in coll_documents.find({}):
             new_item = dict()
-            new_item['id'] = item['_id']
-            new_item['title'] = lemmatize(clean(item['title']))
-            f.write('{0}\n'.format(new_item))
+            new_item[item['_id']] = lemmatize(clean(item['title']))
+            s_tmp = '{0}\n'.format(new_item)
+            f.write(s_tmp.replace("'", '"'))
 
 
 def read_doucments(url=document_clean_path):
@@ -71,8 +71,9 @@ def train():
 
 
 if __name__ == '__main__':
-    r = read_doucments()
-    print(len(r), r[0])
+    pre_process()
+    #r = read_doucments()
+    #print(len(r), r[0])
 
 
 
