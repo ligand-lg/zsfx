@@ -1,4 +1,4 @@
-
+#coding=utf-8
 
 
 
@@ -19,8 +19,8 @@ coll_train = mongo_client.nlp.train_relationship
 coll_test = mongo_client.nlp.test_relationship
 
 
-query_clean_path = './data/query_simple.txt'
-document_clean_path = './data/documents_simple.tx'
+query_clean_path = '../data/query_simple.txt'
+document_clean_path = '../data/documents_simple.tx'
 
 
 def pre_process():
@@ -97,7 +97,7 @@ def train(articles):
             i += 1
 
         score_mat = np.mat(scores).T
-        print('向量化完成')
+        print('vecting over')
         # 对data_mat 进行SVD分解
         #u, sigma, vt = np.linalg.svd(data_mat)
         #pinv_data_mat = vt.T * pinv_sigma * u.T
@@ -112,7 +112,7 @@ def train(articles):
 if __name__ == '__main__':
     articles = read_doucments()
     model = train(articles)
-    with open('./data/model.txt', 'wt', encoding='utf-8') as f:
+    with open('../data/model.txt', 'wt', encoding='utf-8') as f:
         i = 201
         for word_list, paras_mat in model:
             f.write('{0}\n{1}\n{2}\n'.format(i, word_list, paras_mat))
