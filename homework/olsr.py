@@ -5,7 +5,8 @@
 # 1. 预处理(nltk.download('stopwords'), nltk.download('wordnet')
 #   1.1 标点符号、去除停止词、xml转义符号、非打印字符、url、长度小于2的字符。
 #   1.2 porter stemmer 词干提取/ wordnet lemmatizer 词形还原
-
+from collections import defaultdict
+import ast
 import re
 import nltk
 from pymongo import MongoClient
@@ -55,7 +56,7 @@ def pre_process():
 
 
 def read_doucments(url=document_clean_path):
-    docs = dict()
+    docs = defaultdict(str)
     with open(url, 'rt', encoding='utf-8') as f:
         for line in f:
             docs.update(json.loads(line))
@@ -64,7 +65,7 @@ def read_doucments(url=document_clean_path):
 
 def train(articles):
     model = []
-    for i in range(201, 251):
+    for i in range(221, 251):
         qid = str(i)
         relation_articles = list()
         scores = list()
@@ -100,7 +101,11 @@ def train(articles):
         # 对data_mat 进行SVD分解
         #u, sigma, vt = np.linalg.svd(data_mat)
         #pinv_data_mat = vt.T * pinv_sigma * u.T
-        pinv_data_mat = np.linalg.pinv(data_mat)
+        try:
+            pinv_data_mat = np.linalg.pinv(data_mat)
+        except Exception as e:
+            print(e)
+            continue
         params_mat = pinv_data_mat * score_mat
         params_mat = params_mat.T
         params_mat = params_mat.tolist()
@@ -111,7 +116,23 @@ def train(articles):
     return model
 
 
-#def test(model, aritcles):
+def test(aritcles):
+    for i in range(201, 251):
+        qid = str(i)
+        relation_aritcles = []
+        # 读取数据
+        for relationship in coll_test.find({'query_id': qid}):
+            relation_aritcles.append(articles[relationship['article_id']])
+        # 加载模型
+        with open('model_{0}.txt'.format(qid), 'rt', encoding='utf-8') as f:
+            params_mat = f.readline().replace('\n', '')
+            params_mat = ast.literal_eval(params_mat)
+            params_mat = np.mat(params_mat).T
+            word_list = f.readline().replace('\n', '')
+            word_list = ast.literal_eval(word_list)
+        # 向量化article
+
+
 
 
 
