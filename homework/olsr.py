@@ -102,10 +102,14 @@ def train(articles):
         #pinv_data_mat = vt.T * pinv_sigma * u.T
         pinv_data_mat = np.linalg.pinv(data_mat)
         params_mat = pinv_data_mat * score_mat
+        params_mat = params_mat.T
+        params_mat = list(params_mat[0, :])
         model.append((qid, params_mat, word_list))
     return model
 
-#def test(model, aritcles):
+
+def test(model, aritcles):
+
 
 
 
