@@ -64,7 +64,7 @@ def read_doucments(url=document_clean_path):
 
 def train(articles):
     model = []
-    for i in range(201, 202):
+    for i in range(201, 251):
         qid = str(i)
         relation_articles = list()
         scores = list()
@@ -105,6 +105,9 @@ def train(articles):
         params_mat = params_mat.T
         params_mat = params_mat.tolist()
         model.append((qid, params_mat[0], word_list))
+        with open('../data/model_{0}.txt'.format(qid), 'wt', encoding='utf-8') as f:
+            f.write('{0}\n{1}\n'.format(params_mat, word_list))
+        print('{0} over'.format(qid))
     return model
 
 
@@ -116,11 +119,6 @@ def train(articles):
 if __name__ == '__main__':
     articles = read_doucments()
     model = train(articles)
-    with open('../data/model.txt', 'wt', encoding='utf-8') as f:
-        for qid, params_mat, word_list in model:
-            f.write('{0}\n{1}\n{2}\n'.format(qid, params_mat, word_list))
-
-
     #pre_process()
     #r = read_doucments()
     #print(len(r), r[0])
