@@ -63,8 +63,7 @@ def read_doucments(url=document_clean_path):
 
 
 def train(articles):
-    all_word_list = []
-    all_paras_mat = []
+    model = []
     for i in range(201, 202):
         qid = str(i)
         relation_articles = list()
@@ -103,9 +102,10 @@ def train(articles):
         #pinv_data_mat = vt.T * pinv_sigma * u.T
         pinv_data_mat = np.linalg.pinv(data_mat)
         params_mat = pinv_data_mat * score_mat
-        all_paras_mat.append(params_mat)
-        all_word_list.append(word_list)
-    return all_word_list, all_paras_mat
+        model.append((qid, params_mat, word_list))
+    return model
+
+#def test(model, aritcles):
 
 
 
@@ -113,9 +113,8 @@ if __name__ == '__main__':
     articles = read_doucments()
     model = train(articles)
     with open('../data/model.txt', 'wt', encoding='utf-8') as f:
-        i = 201
-        for word_list, paras_mat in model:
-            f.write('{0}\n{1}\n{2}\n'.format(i, word_list, paras_mat))
+        for qid, params_mat, word_list in model:
+            f.write('{0}\n{1}\n{2}\n'.format(qid, params_mat, word_list))
 
 
     #pre_process()
