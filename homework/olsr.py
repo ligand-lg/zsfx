@@ -97,7 +97,7 @@ def train(articles):
             i += 1
 
         score_mat = np.mat(scores).T
-
+        print('向量化完成')
         # 对data_mat 进行SVD分解
         #u, sigma, vt = np.linalg.svd(data_mat)
         #pinv_data_mat = vt.T * pinv_sigma * u.T
@@ -105,14 +105,19 @@ def train(articles):
         params_mat = pinv_data_mat * score_mat
         all_paras_mat.append(params_mat)
         all_word_list.append(word_list)
-
     return all_word_list, all_paras_mat
 
 
 
 if __name__ == '__main__':
     articles = read_doucments()
-    print(train(articles))
+    model = train(articles)
+    with open('./data/model.txt', 'wt', encoding='utf-8') as f:
+        i = 201
+        for word_list, paras_mat in model:
+            f.write('{0}\n{1}\n{2}\n'.format(i, word_list, paras_mat))
+
+
     #pre_process()
     #r = read_doucments()
     #print(len(r), r[0])
