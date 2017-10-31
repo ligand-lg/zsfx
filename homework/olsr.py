@@ -10,6 +10,7 @@ import re
 import nltk
 from pymongo import MongoClient
 import json
+import numpy as np
 mongo_client = MongoClient()
 coll_articles = mongo_client.nlp.articles
 coll_documents = mongo_client.nlp.documents
@@ -54,24 +55,65 @@ def pre_process():
 
 
 def read_doucments(url=document_clean_path):
-    docs = list()
+    docs = dict()
     with open(url, 'rt', encoding='utf-8') as f:
         for line in f:
-            line = line.replace("'", '"').replace('\n', '')
-            docs.append(json.loads(line))
+            docs.update(json.loads(line))
     return docs
 
-'''
-def train():
 
-    for i in range(201, 251):
+def train(articles):
+    all_word_list = []
+    all_paras_mat = []
+    for i in range(201, 202):
         qid = str(i)
-        for relationship in coll_train.find({'query_id':qid}):
-'''
+        relation_articles = list()
+        scores = list()
+        # 读取数据
+        for relationship in coll_train.find({'query_id': qid}):
+            relation_articles.append(articles[relationship['article_id']])
+            scores.append(float(relationship['score']))
+
+        # 建立词表
+        word_list = set()
+        for article in relation_articles:
+            word_list.update(article)
+        word_list = list(word_list)
+        # 使用空格来表示其他词
+        word_list.append(" ")
+        word_list_len = len(word_list)
+
+        # one-hot向量化article
+        data_mat = np.zeros((len(relation_articles), word_list_len+1))
+        print(data_mat.shape)
+        #最后一列为截距
+        data_mat[:, -1] = 1
+        i = 0
+        for article in relation_articles:
+            for word in article:
+                if word in word_list:
+                    index = word_list.index(word)
+                    data_mat[i, index] = 1
+            i += 1
+
+        score_mat = np.mat(scores).T
+
+        # 对data_mat 进行SVD分解
+        #u, sigma, vt = np.linalg.svd(data_mat)
+        #pinv_data_mat = vt.T * pinv_sigma * u.T
+        pinv_data_mat = np.linalg.pinv(data_mat)
+        params_mat = pinv_data_mat * score_mat
+        all_paras_mat.append(params_mat)
+        all_word_list.append(word_list)
+
+    return all_word_list, all_paras_mat
+
 
 
 if __name__ == '__main__':
-    pre_process()
+    articles = read_doucments()
+    print(train(articles))
+    #pre_process()
     #r = read_doucments()
     #print(len(r), r[0])
 
