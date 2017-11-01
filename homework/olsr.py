@@ -1,7 +1,5 @@
 #coding=utf-8
 
-
-
 # 1. 预处理(nltk.download('stopwords'), nltk.download('wordnet')
 #   1.1 标点符号、去除停止词、xml转义符号、非打印字符、url、长度小于2的字符。
 #   1.2 porter stemmer 词干提取/ wordnet lemmatizer 词形还原
@@ -65,7 +63,7 @@ def read_doucments(url=document_clean_path):
 
 def train(articles):
     model = []
-    for i in [224, 228, 235, 236, 243]:
+    for i in range(201, 251):
         qid = str(i)
         relation_articles = list()
         scores = list()
@@ -102,7 +100,7 @@ def train(articles):
         #u, sigma, vt = np.linalg.svd(data_mat)
         #pinv_data_mat = vt.T * pinv_sigma * u.T
         try:
-            pinv_data_mat = np.linalg.pinv(data_mat)
+            pinv_data_mat = np.linalg.pinv(data_mat, 0.01)
         except Exception as e:
             print(e)
             continue
@@ -153,7 +151,9 @@ def test(aritcles):
                 fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
 
 
+
 if __name__ == '__main__':
+    
     articles = read_doucments()
     test(articles)
     #model = train(articles)
@@ -162,5 +162,5 @@ if __name__ == '__main__':
     #print(len(r), r[0])
 
 
-
+# MAE:0.01 -> 2.287481465126515
 
