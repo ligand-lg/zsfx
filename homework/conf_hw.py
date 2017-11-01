@@ -99,6 +99,46 @@ def read_test(qid):
     return read_one_hot('test', qid)
 
 
+def test(algori):
+    with open('../data/predict_{0}.txt'.format(algori), 'wt', encoding='utf-8') as fout:
+        for qid in range(201, 251):
+            # 加载模型
+            with open('../data/model/model_{0}_{1}'.format(algori, qid), 'rt', encoding='utf-8') as fin:
+                params_mat = ast.literal_eval(fin.readline())
+                params_mat = np.mat(params_mat).T
+            # 加载测试集
+            test_data, test_score = read_test(qid)
+            predict_score = test_data * params_mat
+
+            # 读取数据
+            i = 0
+            for relationship in coll_test.find({'query_id': qid}):
+                article_id = relationship['article_id']
+                id_code = relationship['id_code']
+                score = [i, 0]
+                fout.write(
+                    '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
+                i += 1
+    return MAE(algori)
+
+
+def MAE(algori):
+    with open('/home/fry/zsfx/data/predict_{0}.txt'.format(algori), 'rt', encoding='utf-8') as fin:
+        sum_error = 0.0
+        n = 0.0
+        for line in fin:
+            line = line.replace('\n', '')
+            split_line = line.split(' ')
+            predict_label = float(split_line[4])
+            id = split_line[0] + split_line[2]
+            item = coll_test.find({'_id': id})[0]
+            label = float(item['score'])
+            error = abs(predict_label - label)
+            sum_error += error
+            n += 1
+        print("MAE: {0}".format(sum_error / n))
+
+
 if __name__ == '__main__':
     print('staring one-hot encoding...')
     one_hot_encoding()
