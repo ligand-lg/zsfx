@@ -12,7 +12,7 @@ import json
 import numpy as np
 mongo_client = MongoClient()
 coll_articles = mongo_client.nlp.articles
-ncoll_documents = mongo_client.nlp.documents
+coll_documents = mongo_client.nlp.documents
 coll_querys = mongo_client.nlp.querys
 coll_train = mongo_client.nlp.train_relationship
 coll_test = mongo_client.nlp.test_relationship
