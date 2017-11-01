@@ -101,25 +101,24 @@ def read_test(qid):
 
 def test(algori):
     with open('../data/predict_{0}.txt'.format(algori), 'wt', encoding='utf-8') as fout:
-        for qid in range(201, 251):
+        for qid in range(201, 202):
             # 加载模型
             with open('../data/model/model_{0}_{1}.txt'.format(algori, qid), 'rt', encoding='utf-8') as fin:
                 params_mat = ast.literal_eval(fin.readline())
                 params_mat = np.mat(params_mat).T
             # 加载测试集
             test_data, test_score = read_test(qid)
-            # 添加截距
-            row, c = test_data.shape
-            test_data = np.column_stack((test_data, np.ones((row,1))))
+            #
             predict_score = test_data * params_mat
 
             # 读取数据
             i = 0
-            for relationship in coll_test.find({'query_id': str(qid)}):
+            for relationship in coll_test.find({'query_id': qid}):
                 article_id = relationship['article_id']
                 id_code = relationship['id_code']
-                score = predict_score[i, 0]
-                fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
+                score = [i, 0]
+                fout.write(
+                    '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
                 i += 1
     return MAE(algori)
 

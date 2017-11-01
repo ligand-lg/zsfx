@@ -7,10 +7,10 @@ import conf_hw
 
 def batch_gradient_descent():
     # 两次迭代损失函数之差小于改阈值时停止迭代
-    epsilon = 0.00005
+    epsilon = 0.0005
     # 步长/学习率
-    alpha = 0.001
-    for qid in range(201, 202):
+    alpha = 0.05
+    for qid in range(201, 251):
         time = 0
         eroor1 = 0
         error0 = 0
@@ -25,8 +25,8 @@ def batch_gradient_descent():
         theta_v = np.mat(np.zeros((1+column, 1)))
         while True:
             diff = (data_mat * theta_v) - score_mat
-            error1 = diff.T * diff / row
-            print('mse: {0}'.format(error1))
+            error1 = (diff.T * diff / row)[0, 0]
+            #print('mse: {0}'.format(error1))
             if abs(error1-error0) < epsilon:
                 break
             else:
@@ -38,8 +38,11 @@ def batch_gradient_descent():
         theta_v = theta_v.tolist()
         with open('../data/model/model_bgd_{0}.txt'.format(qid), 'wt', encoding='utf-8') as f:
             f.write('{0}\n'.format(theta_v))
+        print('mse:{0}'.format(error1))
         print('{0} over, times: {1}'.format(qid, time))
 
 
 if __name__ == '__main__':
     batch_gradient_descent()
+
+# mae 2.1517221822971626
