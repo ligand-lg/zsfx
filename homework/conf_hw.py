@@ -52,7 +52,7 @@ def one_hot_encoding():
                         indexs.add(word_list.index(word))
                 fout.write('{0}\n'.format(list(indexs)))
         with open('../data/one-hot/train_score_{0}.txt'.format(qid), 'wt', encoding='utf-8') as fout:
-            fout.write(scores)
+            fout.write(str(scores))
 
         # 测试集
         test_relation_articles = list()
@@ -70,8 +70,8 @@ def one_hot_encoding():
                     if word in word_list:
                         indexs.add(word_list.index(word))
                 fout.write('{0}\n'.format(list(indexs)))
-        with open('../data/one-hoe/test_score_{0}.txt'.format(qid), 'wt', encoding='utf-8') as fout:
-            fout.write(test_scores)
+        with open('../data/one-hot/test_score_{0}.txt'.format(qid), 'wt', encoding='utf-8') as fout:
+            fout.write(str(test_scores))
 
 
 def read_one_hot(data_set, qid):
