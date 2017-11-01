@@ -1,13 +1,13 @@
 # coding:utf-8
 
 import numpy as np
-from homework import conf_hw
+#from homework import conf_hw
+import conf_hw
 
 
 def batch_gradient_descent():
     # 两次迭代损失函数之差小于改阈值时停止迭代
-    epsilon = 0.0001
-
+    epsilon = 0.00005
     # 步长/学习率
     alpha = 0.001
     for qid in range(201, 202):
@@ -22,7 +22,7 @@ def batch_gradient_descent():
         data_mat = np.mat(data_mat)
 
         # 初始化参数, 列向量
-        theta_v = np.mat(np.zeros((1, 1+column)))
+        theta_v = np.mat(np.zeros((1+column, 1)))
         while True:
             diff = (data_mat * theta_v) - score_mat
             error1 = diff.T * diff / row
