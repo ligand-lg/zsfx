@@ -4,6 +4,7 @@ from collections import defaultdict
 import json
 import numpy as np
 import ast
+import sys
 mongo_client = MongoClient()
 coll_articles = mongo_client.nlp.articles
 coll_documents = mongo_client.nlp.documents
@@ -99,13 +100,15 @@ def read_test(qid):
     return read_one_hot('test', qid)
 
 
-def test(algori):
+def test(algori, start, end):
     with open('../data/predict_{0}.txt'.format(algori), 'wt', encoding='utf-8') as fout:
-        for qid in range(201, 251):
+        for qid in range(start, end):
             # 加载模型
             with open('../data/model/model_{0}_{1}.txt'.format(algori, qid), 'rt', encoding='utf-8') as fin:
                 params_mat = ast.literal_eval(fin.readline())
                 params_mat = np.mat(params_mat).T
+                if algori=='logistic':
+                    max, min = ast.literal_eval(fin.readline())
             # 加载测试集
             test_data, test_score = read_test(qid)
             # 添加截距
@@ -119,8 +122,12 @@ def test(algori):
                 article_id = relationship['article_id']
                 id_code = relationship['id_code']
                 score = predict_score[i, 0]
+                # logisitc 分数映射
+                if algori == 'logistic':
+                    score = score*100
                 fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
                 i += 1
+            
     return MAE(algori)
 
 
@@ -142,7 +149,15 @@ def MAE(algori):
 
 
 if __name__ == '__main__':
-    test('bgd')
+    start = 201
+    end = 251
+    algori = sys.argv[1]
+    if (len(sys.argv) == 3):
+        end = int(sys.argv[2])
+    elif(len(sys.argv) == 4):
+        start = int(sys.argv[2])
+        end = int(sys.argv[3])
+    test(algori, start, end)
     #print('staring one-hot encoding...')
     #one_hot_encoding()
     #print('over')
