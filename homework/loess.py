@@ -1,12 +1,12 @@
 # coding:utf-8
 
 import numpy as np
-from homework import conf_hw
-#import conf
+#from homework import conf_hw
+import conf_hw
 
 
 def loess(test_point, x_mat, y_mat):
-    m, n = x_mat
+    m, n = x_mat.shape
     weight_mat = np.mat(np.eye(m))
     # tri-cube weight function
     dists = []
@@ -32,7 +32,7 @@ if __name__ == '__main__':
             test_data = np.column_stack((test_data, np.ones((test_data.shape[0], 1))))
             predicts = []
             for r in range(test_r):
-                predict_lab = loess(test_r[r, :], train_data, train_lab)
+                predict_lab = loess(test_data[r, :], train_data, train_lab)
                 predicts.append(predict_lab[0, 0])
                 print(r)
 
