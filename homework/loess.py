@@ -2,6 +2,7 @@
 
 import numpy as np
 from homework import conf_hw
+from sklearn.decomposition import PCA
 #import conf
 
 
@@ -30,6 +31,11 @@ if __name__ == '__main__':
             test_r, test_c = test_data.shape
             train_data = np.column_stack((train_data, np.ones((train_data.shape[0], 1))))
             test_data = np.column_stack((test_data, np.ones((test_data.shape[0], 1))))
+            # PCA 降维
+            pca = PCA(n_components=300)
+            train_data = pca.fit_transform(train_data)
+            test_data = pca.transform(test_data)
+
             predicts = []
             for r in range(test_r):
                 predict_lab = loess(test_r[r, :], train_data, train_lab)
