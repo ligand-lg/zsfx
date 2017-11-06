@@ -29,6 +29,7 @@ if __name__ == '__main__':
             train_data, train_lab = conf_hw.read_train(qid)
             test_data, test_lab = conf_hw.read_test(qid)
             test_r, test_c = test_data.shape
+            # 截距
             train_data = np.column_stack((train_data, np.ones((train_data.shape[0], 1))))
             test_data = np.column_stack((test_data, np.ones((test_data.shape[0], 1))))
             # PCA 降维
