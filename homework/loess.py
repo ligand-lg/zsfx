@@ -15,10 +15,17 @@ def loess(test_point, x_mat, y_mat):
         diff_mat = test_point - x_mat[i, :]
         dists.append((diff_mat*diff_mat.T)[0, 0])
     max_dist = max(dists)
-    for i in range(m):
-        weight_mat[i, i] = (1-(dists[i]/max_dist)**3)**3
+    for j in range(m):
+        weight_mat[j, j] = (1-(dists[j]/max_dist)**3)**3
     # pseudo-inverse
-    pinv = np.linalg.pinv(x_mat.T * weight_mat * x_mat, 0.01)
+    while True:
+        try:
+            pinv = np.linalg.pinv(x_mat.T * weight_mat * x_mat, 0.01)
+            break;
+        except Exception as e:
+            print(e)
+            print('again')
+
     params_mat = pinv * x_mat.T * weight_mat * y_mat
     return test_point * params_mat
 

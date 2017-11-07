@@ -105,3 +105,4 @@ ENV/
 .DS_Store
 .idea/*
 data/*
+homework/nohup.out
