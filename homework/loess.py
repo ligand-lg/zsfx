@@ -65,3 +65,5 @@ if __name__ == '__main__':
                 fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
                 i += 1
     conf_hw.MAE('loess')
+# MAE: 13.892704692969026
+# Total time: 3651 Min

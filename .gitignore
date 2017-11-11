@@ -106,3 +106,4 @@ ENV/
 .idea/*
 data/*
 homework/nohup.out
+homework/*.out
