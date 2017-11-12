@@ -9,8 +9,11 @@ mongo_client = MongoClient()
 coll_articles = mongo_client.nlp.articles
 coll_documents = mongo_client.nlp.documents
 coll_querys = mongo_client.nlp.querys
+coll_relation = mongo_client.nlp.relation
 coll_train = mongo_client.nlp.train_relationship
 coll_test = mongo_client.nlp.test_relationship
+coll_class_train = mongo_client.nlp.class_train_relationship
+coll_class_test = mongo_client.nlp.class_test_relationship
 
 
 query_clean_path = '../data/query_simple.txt'
@@ -148,7 +151,43 @@ def MAE(algori):
         print("MAE: {0}".format(sum_error / n))
 
 
+# 分类(Classification)
+def set_class_train_and_test(use_nums=200, test_ratio=2):
+    new_relations = []
+    for qid in range(201, 251):
+        qid = str(qid)
+        relations = coll_relation.find({'query_id': qid})
+        # 前两百
+        for res in relations[:use_nums]:
+            res['score'] = 1
+            new_relations.append(res)
+        # 后两百
+        for res in relations[-use_nums:]:
+            res['score'] = 0
+            new_relations.append(res)
+    # split train set and test set
+    test_set = []
+    train_set = []
+    total_relation_len = len(new_relations)
+    t = int(total_relation_len/10)
+    for i in range(t):
+        test_index = []
+        for _ in range(test_ratio):
+            test_index.append(np.random.randint(0, 10))
+        for j in range(10):
+            index = i*10 + j
+            if j in test_index:
+                test_set.append(new_relations[index])
+            else:
+                train_set.append(new_relations[index])
+
+    # save to mongo
+    coll_class_test.save(test_set)
+    coll_class_train.save(train_set)
+
+
 if __name__ == '__main__':
+    '''
     start = 201
     end = 251
     algori = sys.argv[1]
@@ -161,3 +200,5 @@ if __name__ == '__main__':
     #print('staring one-hot encoding...')
     #one_hot_encoding()
     #print('over')
+    '''
+    set_class_train_and_test()
