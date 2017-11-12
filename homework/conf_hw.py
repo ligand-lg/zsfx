@@ -156,7 +156,7 @@ def set_class_train_and_test(use_nums=200, test_ratio=2):
     new_relations = []
     for qid in range(201, 251):
         qid = str(qid)
-        relations = coll_relation.find({'query_id': qid})
+        relations = [res for res in coll_relation.find({'query_id': qid})]
         # 前两百
         for res in relations[:use_nums]:
             res['score'] = 1
@@ -182,8 +182,8 @@ def set_class_train_and_test(use_nums=200, test_ratio=2):
                 train_set.append(new_relations[index])
 
     # save to mongo
-    coll_class_test.save(test_set)
-    coll_class_train.save(train_set)
+    coll_class_test.insert_many(test_set)
+    coll_class_train.insert_many(train_set)
 
 
 if __name__ == '__main__':
