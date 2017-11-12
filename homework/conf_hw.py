@@ -95,12 +95,18 @@ def read_one_hot(data_set, qid):
     return data_mat, scores_mat
 
 
-def read_train(qid):
-    return read_one_hot('train', qid)
+def read_train(qid, type=None):
+    if type == 'class':
+        return class_read_one_hot('train', qid)
+    else:
+        return read_one_hot('train', qid)
 
 
-def read_test(qid):
-    return read_one_hot('test', qid)
+def read_test(qid, type=None):
+    if type == 'class':
+        return class_read_one_hot('test', qid)
+    else:
+        return read_one_hot('test', qid)
 
 
 def test(algori, start, end):
@@ -186,6 +192,73 @@ def set_class_train_and_test(use_nums=200, test_ratio=2):
     coll_class_train.insert_many(train_set)
 
 
+def class_one_hot_encoding():
+    articles = read_doucments(document_clean_path)
+    for i in range(201, 251):
+        qid = str(i)
+        relation_articles = list()
+        scores = list()
+        # 读取数据
+        for relationship in coll_class_train.find({'query_id': qid}):
+            relation_articles.append(articles[relationship['article_id']])
+            scores.append(int(relationship['score']))
+
+        # 建立词表
+        word_list = set()
+        for article in relation_articles:
+            word_list.update(article)
+        word_list = list(word_list)
+        word_list_len = len(word_list)
+        # 训练集
+        mat_shape = (len(relation_articles), word_list_len)
+        with open('../data/one-hot/train_class_{0}.txt'.format(qid), 'wt', encoding='utf-8') as fout:
+            fout.write('{0}\n'.format(mat_shape))
+            for article in relation_articles:
+                indexs = set()
+                for word in article:
+                    if word in word_list:
+                        indexs.add(word_list.index(word))
+                fout.write('{0}\n'.format(list(indexs)))
+        with open('../data/one-hot/train_score_class_{0}.txt'.format(qid), 'wt', encoding='utf-8') as fout:
+            fout.write(str(scores))
+
+        # 测试集
+        test_relation_articles = list()
+        test_scores = list()
+        for test_relation in coll_class_test.find({'query_id': qid}):
+            test_relation_articles.append(articles[test_relation['article_id']])
+            test_scores.append(int(test_relation['score']))
+
+        test_shape = (len(test_relation_articles), word_list_len)
+        with open('../data/one-hot/test_class_{0}.txt'.format(qid), 'wt', encoding='utf-8') as fout:
+            fout.write('{0}\n'.format(test_shape))
+            for article in test_relation_articles:
+                indexs = set()
+                for word in article:
+                    if word in word_list:
+                        indexs.add(word_list.index(word))
+                fout.write('{0}\n'.format(list(indexs)))
+        with open('../data/one-hot/test_score_class_{0}.txt'.format(qid), 'wt', encoding='utf-8') as fout:
+            fout.write(str(test_scores))
+
+
+def class_read_one_hot(data_set, qid):
+    data_url = '../data/one-hot/{0}_class_{1}.txt'.format(data_set, qid)
+    score_url = '../data/one-hot/{0}_score_class_{1}.txt'.format(data_set, qid)
+    with open(data_url, 'rt', encoding='utf-8') as fin:
+        shape = ast.literal_eval(fin.readline())
+        data_mat = np.mat(np.zeros(shape))
+        i = 0
+        for indexs_str in fin:
+            indexs = ast.literal_eval(indexs_str)
+            data_mat[i, indexs] = 1
+            i += 1
+    with open(score_url, 'rt', encoding='utf-8') as fin:
+        scores = ast.literal_eval(fin.readline())
+    scores_mat = np.mat(scores).T
+    return data_mat, scores_mat
+
+
 if __name__ == '__main__':
     '''
     start = 201
@@ -201,4 +274,6 @@ if __name__ == '__main__':
     #one_hot_encoding()
     #print('over')
     '''
-    set_class_train_and_test()
+    #set_class_train_and_test()
+    class_one_hot_encoding()
+
