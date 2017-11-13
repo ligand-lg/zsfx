@@ -1,8 +1,9 @@
 import numpy as np
 import math
-#from homework import conf_hw
-import conf_hw
-
+from homework import conf_hw
+#import conf_hw
+from sklearn.decomposition import PCA
+import time
 
 def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
     # 算距离
@@ -16,6 +17,9 @@ def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
             diff = x_train - x
             diff = [abs(x) for x in diff[0, :]]
             dist = sum(diff)
+        else:
+            e = Exception("unknown distance_type")
+            raise e
         distances.append((dist, Y_train[index]))
         index += 1
     #  排序
@@ -48,10 +52,14 @@ def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
             scores += W[index] * y
             index += 1
         y_hat = 1 if scores > 0.5 else 0
+    else:
+        e = Exception("unknown knn type")
+        raise e
     return y_hat
 
 
 if __name__ == '__main__':
+    start = time.time()
     result = dict()
     for dis_type in ['o', 'm']:
         for knn_type in ['naive', 'improve']:
@@ -61,8 +69,18 @@ if __name__ == '__main__':
                 rights = 0
                 for qid in range(201, 205):
                     qid = str(qid)
+                    print(qid)
                     X_train, Y_train = conf_hw.read_train(qid, type='class')
                     X_test, Y_test = conf_hw.read_test(qid, type='class')
+                    # PCA降维
+                    print('PCA...')
+                    start_in = time.time()
+                    pca = PCA(n_components=200)
+                    X_train = pca.fit_transform(X_train)
+                    X_test = pca.transform(X_test)
+                    print("PCA:{0}".format(time.time() - start_in))
+                    start_in = time.time()
+                    print('test...')
                     i = 0
                     for x in X_test:
                         y_hat = knn(x, X_train, Y_train, k, distance_type=dis_type, knn_type=knn_type)
@@ -72,7 +90,8 @@ if __name__ == '__main__':
                             errors += 1
                         i += 1
                 error_ratio = errors/(errors+rights)
-                print(error_ratio)
+                print("test end :{0}".format(time.time() - start_in))
+                print("error ratio: {0}".format(error_ratio))
                 error_ratios_in_k.append(error_ratio)
             result[dis_type+'_'+knn_type] = error_ratios_in_k
     print(result)
