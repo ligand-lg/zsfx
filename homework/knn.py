@@ -1,8 +1,6 @@
-import numpy as np
 import math
 from homework import conf_hw
 #import conf_hw
-from sklearn.decomposition import PCA
 import time
 import matplotlib.pyplot as plt
 
@@ -62,7 +60,28 @@ def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
     return y_hat
 
 
-if __name__ == '__main__':
+def test(k, distance_type, knn_type):
+    with open('../data/predict_knn.txt', 'wt', encoding='utf-8') as fout:
+        for qid in range(201, 251):
+            qid = str(qid)
+            y_hats = []
+            X_train, Y_train = conf_hw.read_train(qid, type='class')
+            X_test, Y_test = conf_hw.read_test(qid, type='class')
+            for x in X_test:
+                y_hat = knn(x, X_train, Y_train, k, distance_type=distance_type, knn_type=knn_type)
+                y_hats.append(y_hat)
+            i = 0
+            for relationship in conf_hw.coll_class_test.find({'query_id':qid}):
+                article_id = relationship['article_id']
+                id_code = relationship['id_code']
+                score = y_hats[i]
+                fout.write(
+                    '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
+                i += 1
+    return conf_hw.MAE('knn')
+
+
+def select_params():
     k_range = list(range(1, 20))
     X_trains = dict()
     Y_trains = dict()
@@ -87,18 +106,10 @@ if __name__ == '__main__':
                 start_in = time.time()
                 for qid in range(201, 211):
                     qid = str(qid)
-                    #print(qid)
                     X_train = X_trains[qid]
                     Y_train = Y_trains[qid]
                     X_test = X_tests[qid]
                     Y_test = Y_tests[qid]
-                    # PCA降维
-                    #'''
-                    start_in = time.time()
-                    pca = PCA(n_components=200)
-                    X_train = np.mat(pca.fit_transform(X_train))
-                    X_test = np.mat(pca.transform(X_test))
-                    #'''
                     i = 0
                     for x in X_test:
                         y_hat = knn(x, X_train, Y_train, k, distance_type=dis_type, knn_type=knn_type)
@@ -107,17 +118,20 @@ if __name__ == '__main__':
                         else:
                             errors += 1
                         i += 1
-                error_ratio = errors/(errors+rights)
+                error_ratio = errors / (errors + rights)
                 print("test end :{0}".format(time.time() - start_in))
                 print("error ratio: {0}".format(error_ratio))
                 error_ratios_in_k.append(error_ratio)
-            result[dis_type+'_'+knn_type] = error_ratios_in_k
+            result[dis_type + '_' + knn_type] = error_ratios_in_k
     print(result)
     for k, v in result.items():
         plt.plot(k_range, v, label=k)
+    plt.xlabel('k')
+    plt.ylabel('错误率')
     plt.legend()
     plt.show()
-# error_ration = 0.27,k=4, o_imporve
+    # error_ration = 0.27,k=4, o_imporve
 
 
-
+if __name__ == '__main__':
+    select_params()
