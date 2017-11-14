@@ -4,6 +4,8 @@ from homework import conf_hw
 #import conf_hw
 from sklearn.decomposition import PCA
 import time
+import matplotlib.pyplot as plt
+
 
 def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
     # 算距离
@@ -12,21 +14,19 @@ def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
     for x_train in X_train:
         if distance_type == 'o':
             diff = x_train - x
-            dist = math.sqrt((diff.T * diff)[0,0])
+            dist = math.sqrt((diff * diff.T)[0, 0])
         elif distance_type == 'm':
-            diff = x_train - x
-            diff = [abs(x) for x in diff[0, :]]
-            dist = sum(diff)
+            diff = abs(x_train - x)
+            dist = diff.sum()
         else:
             e = Exception("unknown distance_type")
             raise e
-        distances.append((dist, Y_train[index]))
+        distances.append((dist, Y_train[index, 0]))
         index += 1
     #  排序
     distances.sort()
-
+    y_hat = None
     # 按前面k个赋值
-    y_hat = 0
     if knn_type == 'naive':
         ones = 0
         for _, y in distances[:k]:
@@ -41,12 +41,16 @@ def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
         W1 = []
         max_dist = distances[k][0]
         max_diff = max_dist - distances[0][0]
+        if max_diff == 0:
+            #print('the same diff, reset to naive knn')
+            return knn(x, X_train, Y_train, k, distance_type=distance_type, knn_type='naive')
         scores = 0
         for dist, y in distances[:k]:
             w = (max_dist-dist)/max_diff
             W1.append(w)
         # 归一化
-        W = [w/sum(W1) for w in W1]
+        sum_w1 = sum(W1)
+        W = [w/sum_w1 for w in W1]
         index = 0
         for _, y in distances[:k]:
             scores += W[index] * y
@@ -59,28 +63,42 @@ def knn(x, X_train, Y_train, k, distance_type='o', knn_type='naive'):
 
 
 if __name__ == '__main__':
+    k_range = list(range(1, 20))
+    X_trains = dict()
+    Y_trains = dict()
+    X_tests = dict()
+    Y_tests = dict()
+    for qid in range(201, 251):
+        qid = str(qid)
+        e1, e2 = conf_hw.read_train(qid, type='class')
+        X_trains[qid] = e1
+        Y_trains[qid] = e2
+        e1, e2 = conf_hw.read_test(qid, type='class')
+        X_tests[qid] = e1
+        Y_tests[qid] = e2
     start = time.time()
     result = dict()
-    for dis_type in ['o', 'm']:
-        for knn_type in ['naive', 'improve']:
+    for dis_type in ['m', 'o']:
+        for knn_type in ['improve', 'naive']:
             error_ratios_in_k = []
-            for k in range(3, 11):
+            for k in k_range:
                 errors = 0
                 rights = 0
-                for qid in range(201, 205):
+                start_in = time.time()
+                for qid in range(201, 211):
                     qid = str(qid)
-                    print(qid)
-                    X_train, Y_train = conf_hw.read_train(qid, type='class')
-                    X_test, Y_test = conf_hw.read_test(qid, type='class')
+                    #print(qid)
+                    X_train = X_trains[qid]
+                    Y_train = Y_trains[qid]
+                    X_test = X_tests[qid]
+                    Y_test = Y_tests[qid]
                     # PCA降维
-                    print('PCA...')
+                    #'''
                     start_in = time.time()
                     pca = PCA(n_components=200)
-                    X_train = pca.fit_transform(X_train)
-                    X_test = pca.transform(X_test)
-                    print("PCA:{0}".format(time.time() - start_in))
-                    start_in = time.time()
-                    print('test...')
+                    X_train = np.mat(pca.fit_transform(X_train))
+                    X_test = np.mat(pca.transform(X_test))
+                    #'''
                     i = 0
                     for x in X_test:
                         y_hat = knn(x, X_train, Y_train, k, distance_type=dis_type, knn_type=knn_type)
@@ -95,6 +113,11 @@ if __name__ == '__main__':
                 error_ratios_in_k.append(error_ratio)
             result[dis_type+'_'+knn_type] = error_ratios_in_k
     print(result)
+    for k, v in result.items():
+        plt.plot(k_range, v, label=k)
+    plt.legend()
+    plt.show()
+# error_ration = 0.27,k=4, o_imporve
 
 
 
