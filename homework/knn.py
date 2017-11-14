@@ -127,11 +127,11 @@ def select_params():
     for k, v in result.items():
         plt.plot(k_range, v, label=k)
     plt.xlabel('k')
-    plt.ylabel('错误率')
+    plt.ylabel('error ratio')
     plt.legend()
     plt.show()
     # error_ration = 0.27,k=4, o_imporve
 
 
 if __name__ == '__main__':
-    select_params()
+    test(4, distance_type='o', knn_type='improve')
