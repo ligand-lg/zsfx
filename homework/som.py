@@ -1,5 +1,5 @@
-from homework import conf_hw
-#import conf_hw
+#from homework import conf_hw
+import conf_hw
 import numpy as np
 
 
@@ -78,7 +78,7 @@ with open('../data/predict_som.txt', 'wt', encoding='utf-8') as fout:
     for relationship in conf_hw.coll_class_test.find({'query_id': '201'}):
         article_id = relationship['article_id']
         id_code = relationship['id_code']
-        score = y_hat[i]
+        score = y_hat[i,0]
         fout.write(
             '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format('201', article_id, id_code, score))
         i += 1
