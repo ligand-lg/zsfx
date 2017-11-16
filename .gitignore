@@ -107,3 +107,4 @@ ENV/
 data/*
 homework/nohup.out
 homework/*.out
+*.ipynb
