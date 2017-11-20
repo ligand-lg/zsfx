@@ -5,7 +5,7 @@ from homework import conf_hw
 #import conf_hw
 import time
 import matplotlib.pyplot as plt
-
+from sklearn.decomposition import PCA
 
 def ridge(X_train, y_train, k, X_test):
     m, n = X_train.shape
@@ -30,9 +30,13 @@ def select_best_k():
     for qid in range(201, 251):
         qid = str(qid)
         e1, e2 = conf_hw.read_train(qid)
+        pca = PCA(n_components=300)
+        e1 = pca.fit_transform(e1)
         X_trains[qid] = e1
         Y_trains[qid] = e2
+
         e1, e2 = conf_hw.read_test(qid)
+        e1 = pca.transform(e1)
         X_tests[qid] = e1
         Y_tests[qid] = e2
 
