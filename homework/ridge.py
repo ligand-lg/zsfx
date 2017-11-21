@@ -57,11 +57,11 @@ def select_best_k():
             Y_test = Y_tests[qid]
 
             y_hat = ridge(X_train, Y_train, k, X_test)
-            mae = sum(abs(y_hat-Y_test))[0, 0] / X_test.shape[0]
+            mae = sum(abs(y_hat - Y_test))[0, 0] / X_test.shape[0]
             avg_mae += mae
         avg_mae /= 50
         print('k={0}, mae={1}'.format(k, avg_mae))
-        print('speed {0} min'.format((time.time()-time_in)/60))
+        print('speed {0} min'.format((time.time() - time_in) / 60))
         result.append(avg_mae)
     plt.plot(k_range, result)
     plt.xlabel('k')
@@ -70,43 +70,34 @@ def select_best_k():
 # best : k = 10
 
 
+def predict(k):
+    fout = open('../data/predict_ridge.txt', 'wt', encoding='utf-8')
+    for qid in range(201, 251):
+        qid = str(qid)
+        X_train, Y_train = conf_hw.read_train(qid)
+        pca = PCA(n_components=300)
+        X_train = np.mat(pca.fit_transform(X_train))
+        X_train = np.column_stack((X_train, np.ones((X_train.shape[0], 1))))
+        X_test, Y_test = conf_hw.read_test(qid)
+        X_test = np.mat(pca.transform(X_test))
+        X_test = np.column_stack((X_test, np.ones((X_test.shape[0], 1))))
+
+        y_hat = ridge(X_train, Y_train, k, X_test)
+        mae = sum(abs(y_hat - Y_test))[0, 0] / X_test.shape[0]
+
+        i = 0
+        for relationship in conf_hw.coll_test.find({'query_id': str(qid)}):
+            article_id = relationship['article_id']
+            id_code = relationship['id_code']
+            score = y_hat[i]
+            fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
+            i += 1
+    conf_hw.MAE('ridge')
+
+
 if __name__ == '__main__':
-    select_best_k()
-    '''
-    start = time.time()
-    with open('../data/predict_ridge.txt', 'wt', encoding='utf-8') as fout:
-        for qid in range(201, 251):
-            print(qid)
-            train_data, train_lab = conf_hw.read_train(qid)
-            test_data, test_lab = conf_hw.read_test(qid)
-            test_r, test_c = test_data.shape
-            # 截距
-            train_data = np.column_stack((train_data, np.ones((train_data.shape[0], 1))))
-            test_data = np.column_stack((test_data, np.ones((test_data.shape[0], 1))))
-            # PCA 降维
-            print('PCA...')
-            start_in = time.time()
-            pca = PCA(n_components=300)
-            train_data = pca.fit_transform(train_data)
-            test_data = pca.transform(test_data)
-            print('PCA: {0}'.format(time.time()-start_in))
-            start_in = time.time()
-            print('test...')
-            predicts = []
-            for r in range(test_r):
-                predict_lab = loess(test_data[r, :], train_data, train_lab)
-                predicts.append(predict_lab[0, 0])
-                print(r)
-            print('test end :{0}'.format(time.time()-start_in))
-            # write to file
-            i = 0
-            for relationship in conf_hw.coll_test.find({'query_id': str(qid)}):
-                article_id = relationship['article_id']
-                id_code = relationship['id_code']
-                score = predicts[i]
-                fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
-                i += 1
-    conf_hw.MAE('loess')
+    # select_best_k()
+    predict(k=10)
+
 # MAE: 13.892704692969026
-# Total time: 3651 Min
-'''
+

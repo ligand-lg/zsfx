@@ -30,3 +30,4 @@ if __name__ == '__main__':
         mae = sum(abs(y_hat-y_test)) / X_test.shape[0]
         print('time: {0}'.format(time.time()- time_in))
     print('avg mae: {0}'.format(total_error/50))
+fout.close()
