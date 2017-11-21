@@ -12,6 +12,10 @@ if __name__ == '__main__':
         qid = str(qid)
         X_train, Y_train = conf_hw.read_train(qid)
         X_test, Y_test = conf_hw.read_test(qid)
+        # 线性回归截距
+        X_train = np.column_stack((X_train, np.ones((X_train.shape[0], 1))))
+        X_test = np.column_stack((X_test, np.ones((X_test.shape[0], 1))))
+
         y_train = np.array(Y_train).ravel()
         y_test = np.array(Y_test).ravel()
 
