@@ -11,9 +11,11 @@ def ridge(X_train, y_train, k, X_test):
     m, n = X_train.shape
     I = np.mat(np.eye(n))
     k_I = k * I
+    aim_mat = X_train.T * X_train
+    aim_mat = aim_mat + k_I
     while True:
         try:
-            pinv = np.linalg.pinv(X_train.T * X_train + k_I, 0.01)
+            pinv = np.linalg.pinv(aim_mat)
             break
         except Exception as e:
             print(e)
@@ -31,17 +33,18 @@ def select_best_k():
         qid = str(qid)
         e1, e2 = conf_hw.read_train(qid)
         pca = PCA(n_components=300)
-        e1 = pca.fit_transform(e1)
+        e1 = np.mat(pca.fit_transform(e1))
+        e1 = np.column_stack((e1, np.ones((e1.shape[0], 1))))
         X_trains[qid] = e1
         Y_trains[qid] = e2
-
         e1, e2 = conf_hw.read_test(qid)
-        e1 = pca.transform(e1)
+        e1 = np.mat(pca.transform(e1))
+        e1 = np.column_stack((e1, np.ones((e1.shape[0], 1))))
         X_tests[qid] = e1
         Y_tests[qid] = e2
 
     result = []
-    k_range = list(range(0, 3))
+    k_range = list(range(20))
     for k in k_range:
         time_in = time.time()
         avg_mae = 0
@@ -54,16 +57,17 @@ def select_best_k():
             Y_test = Y_tests[qid]
 
             y_hat = ridge(X_train, Y_train, k, X_test)
-            mae = sum(abs(y_hat-Y_test))[0, 0]
+            mae = sum(abs(y_hat-Y_test))[0, 0] / X_test.shape[0]
             avg_mae += mae
         avg_mae /= 50
-        print('k={0}, {1}'.format(k, avg_mae))
+        print('k={0}, mae={1}'.format(k, avg_mae))
         print('speed {0} min'.format((time.time()-time_in)/60))
         result.append(avg_mae)
     plt.plot(k_range, result)
     plt.xlabel('k')
     plt.ylabel('MAE')
     plt.show()
+# best : k = 10
 
 
 if __name__ == '__main__':
