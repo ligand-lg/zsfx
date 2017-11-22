@@ -89,7 +89,7 @@ def predict(k):
         for relationship in conf_hw.coll_test.find({'query_id': str(qid)}):
             article_id = relationship['article_id']
             id_code = relationship['id_code']
-            score = y_hat[i]
+            score = y_hat[i, 0]
             fout.write('{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
             i += 1
     conf_hw.MAE('ridge')
@@ -99,5 +99,5 @@ if __name__ == '__main__':
     # select_best_k()
     predict(k=10)
 
-# MAE: 13.892704692969026
+# MAE: 2.13045933070801
 

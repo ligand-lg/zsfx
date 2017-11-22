@@ -5,7 +5,6 @@ import time
 
 if __name__ == '__main__':
     fout = open('../data/predict_lasso.txt', 'wt', encoding='utf-8')
-    total_error = 0
     for qid in range(201, 251):
         print(qid)
         time_in = time.time()
@@ -33,5 +32,7 @@ if __name__ == '__main__':
             i += 1
         mae = sum(abs(y_hat-y_test)) / X_test.shape[0]
         print('time: {0}'.format(time.time()- time_in))
-    print('avg mae: {0}'.format(total_error/50))
     fout.close()
+    conf_hw.MAE('lasso')
+
+# MAE: 2.4338371069187454
