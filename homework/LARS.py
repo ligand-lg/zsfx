@@ -36,3 +36,5 @@ if __name__ == '__main__':
         print('time: {0}'.format(time.time()- time_in))
     fout.close()
     conf_hw.MAE('LARS')
+
+# MAE: 2.1389751486087634

@@ -1,10 +1,11 @@
 from sklearn.linear_model import ElasticNet
-from homework import conf_hw
+#from homework import conf_hw
+import conf_hw
 import numpy as np
 import time
 
 if __name__ == '__main__':
-    fout = open('../data/predict_elasic_net.txt', 'wt', encoding='utf-8')
+    fout = open('../data/predict_elastic_net.txt', 'wt', encoding='utf-8')
     for qid in range(201, 251):
         print(qid)
         time_in = time.time()
@@ -34,3 +35,4 @@ if __name__ == '__main__':
         print('time: {0}'.format(time.time()- time_in))
     fout.close()
     conf_hw.MAE('elastic_net')
+#MAE: 2.6129161207106697
