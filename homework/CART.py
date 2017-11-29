@@ -32,7 +32,12 @@ class DescisionTreeClassifier:
         available_columns = available_columns.copy()
         self.nums += 1
 
-        if available_row <= 0 | available_columns <=0:
+        if len(available_columns) <= 0:
+            cls = 0
+            if available_columns.count(1) > available_columns.count(0):
+                cls = 1
+            return tree(data={'class':cls})
+        if len(available_row) <= 0:
             raise Exception("rows or columns can't be empty")
 
         y_set = list(set(self.y_train[available_row]))
@@ -87,7 +92,7 @@ class DescisionTreeClassifier:
         self.x_train = x_train.copy()
         self.y_train = y_train.copy()
         self.rows, self.columns = x_train.shape
-        self.tree = self.__fit(list(range(self.columns)), list(range(self.rows)))
+        self.tree = self.__fit(list(range(self.rows)), list(range(self.columns)))
         return tree
 
     #def predict(self, x_test):
@@ -98,12 +103,12 @@ class DescisionTreeClassifier:
 if __name__ == '__main__':
     print('start....')
     for qid in range(201, 202):
-        x_train, y_train = conf_hw.read_test(qid, type='class')
+        x_train, y_train = conf_hw.read_train(qid, type='class')
         x_train = np.array(x_train)
-        y_train = np.array(y_train)
+        y_train = np.array(y_train).ravel()
         x_test, y_test = conf_hw.read_test(qid, type='class')
         x_test = np.array(x_test)
-        y_test = np.array(y_test)
+        y_test = np.array(y_test).ravel()
 
         clf = DescisionTreeClassifier()
         clf.fit(x_train, y_train)
