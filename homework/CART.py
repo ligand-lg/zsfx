@@ -27,6 +27,13 @@ class DescisionTreeClassifier:
             gini_value += (float(d.count(value))/len_d)**2
         return 1-gini_value
 
+    def max_class(self, rows):
+        y = list(self.y_train[rows])
+        cls = 0
+        if y.count(1) > y.count(0):
+            cls = 1
+        return cls
+
     def __fit(self, available_row, available_columns):
         available_row = available_row.copy()
         available_columns = available_columns.copy()
@@ -41,9 +48,7 @@ class DescisionTreeClassifier:
             return tree(data={'class': y_set[0]})
         # 叶子节点 --- feature用完,采用投票制来确定class
         if len(available_columns) == 0:
-            cls = 0
-            if available_columns.count(1) > available_columns.count(0):
-                cls = 1
+            cls = self.max_class(available_row)
             print('no feature. class {0}'.format(cls))
             return tree(data={'class': cls})
 
@@ -74,6 +79,10 @@ class DescisionTreeClassifier:
                         selected_feature = feature
                         selected_feature_value = value
         # 使用最优的feature 和 value对数据集进行分割
+        if selected_feature == None:
+            cls = self.max_class(available_row)
+            print("all non't available feature. class {0}".format(cls))
+            return tree(data={'class': cls})
         d1_row = []
         d2_row = []
         for row in available_row:
