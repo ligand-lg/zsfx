@@ -111,13 +111,30 @@ class DescisionTreeClassifier:
         self.tree = self.__fit(list(range(self.rows)), list(range(self.columns)))
         return tree
 
-    #def predict(self, x_test):
-
-    #def error(self):
+    def predict(self, x_test):
+        y_hat = []
+        row, column = x_test.shape
+        for r in range(row):
+            node = self.tree
+            while True:
+                if 'class' in node.data.keys():
+                    y_hat.append(node.data['class'])
+                    break
+                else:
+                    feature = node.data['feature']
+                    feature_value = node.data['value']
+                    if x_test[r, feature] == feature_value:
+                        node = node.left
+                    else:
+                        node = node.right
+        return y_hat
 
 
 if __name__ == '__main__':
     print('start....')
+    error_num = 0
+    total_num = 0
+    fout = open('../data/predict_cart.txt', 'wt', encoding='utf-8')
     for qid in range(201, 202):
         x_train, y_train = conf_hw.read_train(qid, type='class')
         x_train = np.array(x_train)
@@ -128,3 +145,21 @@ if __name__ == '__main__':
 
         clf = DescisionTreeClassifier()
         clf.fit(x_train, y_train)
+        y_hat = clf.predict(x_test)
+
+        # error ration
+        for r in range(len(y_hat)):
+            if y_hat[r] != y_test[r]:
+                error_num += 1
+        total_num += len(y_hat)
+
+        # write file
+        i = 0
+        for relationship in conf_hw.coll_class_test.find({'query_id': qid}):
+            article_id = relationship['article_id']
+            id_code = relationship['id_code']
+            score = y_hat[i]
+            fout.write(
+                '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
+            i += 1
+    print('error_ration: {0}'.format(float(error_num)/float(total_num)))
