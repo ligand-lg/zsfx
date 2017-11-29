@@ -30,27 +30,32 @@ class DescisionTreeClassifier:
     def __fit(self, available_row, available_columns):
         available_row = available_row.copy()
         available_columns = available_columns.copy()
-        self.nums += 1
 
-        if len(available_columns) <= 0:
-            cls = 0
-            if available_columns.count(1) > available_columns.count(0):
-                cls = 1
-            return tree(data={'class':cls})
         if len(available_row) <= 0:
             raise Exception("rows or columns can't be empty")
 
         y_set = list(set(self.y_train[available_row]))
-        # 叶子节点
+        # 叶子节点 --- 正常分类完成
         if len(y_set) == 1:
-            return tree(data={'class':y_set[0]})
+            print('class {0}'.format(y_set[0]))
+            return tree(data={'class': y_set[0]})
+        # 叶子节点 --- feature用完,采用投票制来确定class
+        if len(available_columns) == 0:
+            cls = 0
+            if available_columns.count(1) > available_columns.count(0):
+                cls = 1
+            print('no feature. class {0}'.format(cls))
+            return tree(data={'class': cls})
 
         remove_feature = []
         best_gini = np.inf
         selected_feature = None
         selected_feature_value = None
+
+        #  找feature和value使得gini(y |f, v) 最小
         for feature in available_columns:
             available_value = list(set(self.x_train[available_row, feature]))
+            # 去除无区分度属性
             if len(available_value) < 2:
                 remove_feature.append(feature)
                 continue
@@ -68,7 +73,7 @@ class DescisionTreeClassifier:
                         best_gini = partition_gini
                         selected_feature = feature
                         selected_feature_value = value
-
+        # 使用最优的feature 和 value对数据集进行分割
         d1_row = []
         d2_row = []
         for row in available_row:
@@ -76,6 +81,7 @@ class DescisionTreeClassifier:
                 d1_row.append(row)
             else:
                 d2_row.append(row)
+        # 去除相应的feature
         remove_feature.append(selected_feature)
         for rf in remove_feature:
             available_columns.remove(rf)
@@ -84,6 +90,7 @@ class DescisionTreeClassifier:
         node_data['gini'] = best_gini
         node_data['feature'] = selected_feature
         node_data['value'] = selected_feature_value
+        node_data['remove_feature'] = remove_feature
         left_chlid = self.__fit(d1_row, available_columns)
         right_child = self.__fit(d2_row, available_columns)
         return tree(left=left_chlid, right=right_child, data=node_data)
