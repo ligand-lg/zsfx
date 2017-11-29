@@ -1,5 +1,6 @@
 import numpy as np
 from homework import conf_hw
+from sklearn import tree as s_tree
 
 
 class tree(object):
@@ -131,10 +132,11 @@ class DescisionTreeClassifier:
 
 
 if __name__ == '__main__':
+    alr = 'cart'
     print('start....')
     error_num = 0
     total_num = 0
-    fout = open('../data/predict_cart.txt', 'wt', encoding='utf-8')
+    fout = open('../data/predict_{0}.txt'.format(alr), 'wt', encoding='utf-8')
     for qid in range(201, 202):
         x_train, y_train = conf_hw.read_train(qid, type='class')
         x_train = np.array(x_train)
@@ -142,11 +144,17 @@ if __name__ == '__main__':
         x_test, y_test = conf_hw.read_test(qid, type='class')
         x_test = np.array(x_test)
         y_test = np.array(y_test).ravel()
-
-        clf = DescisionTreeClassifier()
+        clf = None
+        if alr == 'cart':
+            clf = DescisionTreeClassifier()
+        elif alr == 'id3':
+            clf = s_tree.DecisionTreeClassifier(criterion='entropy')
+        elif alr == 'c4.5':
+            clf = s_tree.DecisionTreeClassifier(criterion='entropy')
+        elif alr == 'chaid':
+            clf = s_tree.DecisionTreeClassifier(criterion='entropy')
         clf.fit(x_train, y_train)
         y_hat = clf.predict(x_test)
-
         # error ration
         for r in range(len(y_hat)):
             if y_hat[r] != y_test[r]:
