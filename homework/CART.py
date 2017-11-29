@@ -132,12 +132,12 @@ class DescisionTreeClassifier:
 
 
 if __name__ == '__main__':
-    alr = 'cart'
+    alr = 'chaid'
     print('start....')
     error_num = 0
     total_num = 0
     fout = open('../data/predict_{0}.txt'.format(alr), 'wt', encoding='utf-8')
-    for qid in range(201, 202):
+    for qid in range(201, 251):
         x_train, y_train = conf_hw.read_train(qid, type='class')
         x_train = np.array(x_train)
         y_train = np.array(y_train).ravel()
@@ -171,3 +171,4 @@ if __name__ == '__main__':
                 '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
             i += 1
     print('error_ration: {0}'.format(float(error_num)/float(total_num)))
+    # error_ration: 0.2571127502634352
