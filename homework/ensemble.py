@@ -1,5 +1,6 @@
 from homework import conf_hw
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -46,8 +47,8 @@ def select_paras():
     max1 = max(cost_times)
     max2 = max(error_ration)
     for i in range(len(cost_times)):
-        cost_times[i] = cost_times[i] - min1 / max1 - min1
-        error_ration[i] = error_ration[i] - min2 / max2 - min2
+        cost_times[i] = (cost_times[i] - min1) / (max1 - min1)
+        error_ration[i] = (error_ration[i] - min2) / (max2 - min2)
 
     plt.plot(num_of_trees, cost_times, label='cost_time')
     plt.plot(num_of_trees, error_ration, label='error_ration')
@@ -58,4 +59,40 @@ def select_paras():
 
 
 if __name__ == '__main__':
-    select_paras()
+    alr = 'random_forest'
+    print('start....')
+    error_num = 0
+    total_num = 0
+    fout = open('../data/predict_{0}.txt'.format(alr), 'wt', encoding='utf-8')
+    for qid in range(201, 251):
+        x_train, y_train = conf_hw.read_train(qid, type='class')
+        x_train = np.array(x_train)
+        y_train = np.array(y_train).ravel()
+        x_test, y_test = conf_hw.read_test(qid, type='class')
+        x_test = np.array(x_test)
+        y_test = np.array(y_test).ravel()
+        clf = None
+        if alr == 'random_forest':
+            print(alr)
+            clf = RandomForestClassifier(n_estimators=14,criterion='entropy', max_features='sqrt', bootstrap=True,
+                                         n_jobs=-1)
+        elif alr == 'adaboost':
+            clf = AdaBoostClassifier()
+        clf.fit(x_train, y_train)
+        y_hat = clf.predict(x_test)
+        # error ration
+        for r in range(len(y_hat)):
+            if y_hat[r] != y_test[r]:
+                error_num += 1
+        total_num += len(y_hat)
+
+        # write file
+        i = 0
+        for relationship in conf_hw.coll_class_test.find({'query_id': qid}):
+            article_id = relationship['article_id']
+            id_code = relationship['id_code']
+            score = y_hat[i]
+            fout.write(
+                '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
+            i += 1
+    print('error_ration: {0}'.format(float(error_num) / float(total_num)))
