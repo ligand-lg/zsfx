@@ -153,6 +153,8 @@ if __name__ == '__main__':
             clf = s_tree.DecisionTreeClassifier(criterion='entropy')
         elif alr == 'chaid':
             clf = s_tree.DecisionTreeClassifier(criterion='entropy')
+        elif alr == 'm5':
+            clf = s_tree.DecisionTreeClassifier(criterion='entropy')
         clf.fit(x_train, y_train)
         y_hat = clf.predict(x_test)
         # error ration
