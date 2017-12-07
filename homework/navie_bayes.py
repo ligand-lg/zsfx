@@ -1,4 +1,5 @@
-from homework import conf_hw
+#from homework import conf_hw
+import conf_hw
 import math
 import numpy as np
 
@@ -19,8 +20,10 @@ class NavieBayes:
         for y in [0,1]:
             select_simples = x_train[y_train[:] == y, :]
             for xi in select_simples.T:
-                zeros = list(xi).count(0) + self.lam / len(xi) + self.lam * 2
-                ones = list(xi).count(1) + self.lam / len(xi) + self.lam * 2
+                zeros = (list(xi).count(0) + self.lam) / (len(xi) + self.lam * 2)
+                #print('zeros:{0}'.format(zeros))
+                ones = (list(xi).count(1) + self.lam) / (len(xi) + self.lam * 2)
+                #print('ones:{0}'.format(ones))
                 if y == 0:
                     self.conditional_0.append([zeros, ones])
                 else:
@@ -33,7 +36,7 @@ class NavieBayes:
             for y in [0, 1]:
                 conditional = self.conditional_0 if y == 0 else self.conditional_1
                 for xi, conditional_xi in zip(x, conditional):
-                    posterior[y] += math.log(conditional_xi)
+                    posterior[y] += math.log(conditional_xi[int(xi)])
                 posterior[y] += math.log(self.prior[y])
             y_hat.append(0 if posterior[0] > posterior[1] else 1)
         return y_hat
@@ -62,6 +65,8 @@ if __name__ == '__main__':
 
         # write file
         i = 0
+        #for asf, asff in zip(y_hat, y_test):
+           # print(asf, asff)
         for relationship in conf_hw.coll_class_test.find({'query_id': qid}):
             article_id = relationship['article_id']
             id_code = relationship['id_code']

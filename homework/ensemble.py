@@ -1,4 +1,5 @@
-from homework import conf_hw
+#from homework import conf_hw
+import conf_hw
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
 import numpy as np
@@ -73,9 +74,7 @@ if __name__ == '__main__':
         y_test = np.array(y_test).ravel()
         clf = None
         if alr == 'random_forest':
-            print(alr)
-            clf = RandomForestClassifier(n_estimators=14,criterion='entropy', max_features='sqrt', bootstrap=True,
-                                         n_jobs=-1)
+            clf = RandomForestClassifier(n_estimators=14,criterion='entropy', max_features='sqrt', bootstrap=True, n_jobs=-1)
         elif alr == 'adaboost':
             clf = AdaBoostClassifier()
         clf.fit(x_train, y_train)
@@ -96,3 +95,6 @@ if __name__ == '__main__':
                 '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
             i += 1
     print('error_ration: {0}'.format(float(error_num) / float(total_num)))
+
+# adaboost: 0.19810326659641728
+# random_forest: 0.19494204425711276
