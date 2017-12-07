@@ -1,5 +1,6 @@
 import numpy as np
-from homework import conf_hw
+#from homework import conf_hw
+import conf_hw
 from sklearn import tree as s_tree
 
 
@@ -132,7 +133,7 @@ class DescisionTreeClassifier:
 
 
 if __name__ == '__main__':
-    alr = 'chaid'
+    alr = 'm5'
     print('start....')
     error_num = 0
     total_num = 0
@@ -165,7 +166,7 @@ if __name__ == '__main__':
 
         # write file
         i = 0
-        for relationship in conf_hw.coll_class_test.find({'query_id': qid}):
+        for relationship in conf_hw.coll_class_test.find({'query_id': str(qid)}):
             article_id = relationship['article_id']
             id_code = relationship['id_code']
             score = y_hat[i]

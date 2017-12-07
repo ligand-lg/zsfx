@@ -21,9 +21,7 @@ class NavieBayes:
             select_simples = x_train[y_train[:] == y, :]
             for xi in select_simples.T:
                 zeros = (list(xi).count(0) + self.lam) / (len(xi) + self.lam * 2)
-                #print('zeros:{0}'.format(zeros))
                 ones = (list(xi).count(1) + self.lam) / (len(xi) + self.lam * 2)
-                #print('ones:{0}'.format(ones))
                 if y == 0:
                     self.conditional_0.append([zeros, ones])
                 else:
@@ -65,14 +63,13 @@ if __name__ == '__main__':
 
         # write file
         i = 0
-        #for asf, asff in zip(y_hat, y_test):
-           # print(asf, asff)
-        for relationship in conf_hw.coll_class_test.find({'query_id': qid}):
+        for relationship in conf_hw.coll_class_test.find({'query_id': str(qid)}):
             article_id = relationship['article_id']
             id_code = relationship['id_code']
             score = y_hat[i]
             fout.write(
                 '{0} Q0 {1} {2} {3} Hiemstra_LM0.15_Bo1bfree_d_3_t_10\n'.format(qid, article_id, id_code, score))
             i += 1
+    fout.close()
     print('error_ration: {0}'.format(float(error_num) / float(total_num)))
     # error_ration: 0.21048472075869337
