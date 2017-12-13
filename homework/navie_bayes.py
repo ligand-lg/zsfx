@@ -1,10 +1,10 @@
-#from homework import conf_hw
 import conf_hw
 import math
 import numpy as np
+from sklearn.naive_bayes import  GaussianNB, MultinomialNB, BernoulliNB
 
 
-class NavieBayes:
+class NaiveBayes:
     def __init__(self, lam=1):
         self.lam = lam
         self.prior = []
@@ -40,7 +40,7 @@ class NavieBayes:
         return y_hat
 
 if __name__ == '__main__':
-    alr = 'navie_bayes'
+    alr = 'naive_bayes'
     print('start....')
     error_num = 0
     total_num = 0
@@ -52,7 +52,12 @@ if __name__ == '__main__':
         x_test, y_test = conf_hw.read_test(qid, type='class')
         x_test = np.array(x_test)
         y_test = np.array(y_test).ravel()
-        clf = NavieBayes()
+        if alr == 'naive_bayes':
+            clf = NaiveBayes()
+        elif alr == 'gaussian_bayes':
+            clf = GaussianNB()
+        elif alr == 'multinomial_bayes':
+            clf = MultinomialNB()
         clf.fit(x_train, y_train)
         y_hat = clf.predict(x_test)
         # error ration
@@ -72,4 +77,5 @@ if __name__ == '__main__':
             i += 1
     fout.close()
     print('error_ration: {0}'.format(float(error_num) / float(total_num)))
-    # error_ration: 0.21048472075869337
+    # naive bayes: 0.21048472075869337
+
