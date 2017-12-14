@@ -58,6 +58,8 @@ if __name__ == '__main__':
             clf = GaussianNB()
         elif alr == 'multinomial_bayes':
             clf = MultinomialNB()
+        elif alr == 'aode':
+            clf = MultinomialNB()
         clf.fit(x_train, y_train)
         y_hat = clf.predict(x_test)
         # error ration
