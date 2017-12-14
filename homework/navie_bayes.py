@@ -80,4 +80,6 @@ if __name__ == '__main__':
     fout.close()
     print('error_ration: {0}'.format(float(error_num) / float(total_num)))
     # naive bayes: 0.21048472075869337
-
+    # gaussian_bayes: 0.28793466807165435
+    # multinomail_bayes: 0.2363013698630137
+    # bernoulli_bayes: 0.21048472075869337
