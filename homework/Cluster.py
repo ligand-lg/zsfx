@@ -69,7 +69,7 @@ if __name__ == '__main__':
     total = 0
     alr = 'k-means'
     fout = open('../data/predict_{0}.txt'.format(alr), 'wt', encoding='utf-8')
-    for qid in range(201, 202):
+    for qid in range(201, 251):
         data, y_test = conf_hw.read_train(qid, type='class')
         test = KMeans()
         y_hat = test.cluster(np.array(data))
